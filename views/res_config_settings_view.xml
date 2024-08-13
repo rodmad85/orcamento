@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<!--
+  -->
+
+<odoo>
+
+    <record id="orcamento_res_config_settings_form" model="ir.ui.view">
+        <field name="name">orcamento.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="50" />
+        <field
+            name="inherit_id"
+            ref="sale.res_config_settings_view_form"
+        />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='proforma_configuration']" position="after">
+
+
+                     <div class="col-12 col-lg-6 o_setting_box" data-key="orcamento">
+                            <div class="o_setting_left_pane" />
+                            <div class="o_setting_right_pane" >
+                                <label for="custo_fixo" />
+                                <field name="custo_fixo" />
+                            </div>
+
+                         <div class="o_setting_left_pane"/>
+                          <div class="o_setting_right_pane">
+                                <label for="vhora" />
+                              <field name="currency_id" invisible="1"/>
+                              <field name="vhora" />
+                          </div>
+
+                          <div class="o_setting_left_pane"/>
+                          <div class="o_setting_right_pane" >
+                                <label for="venda" />
+                                <field name="venda" />
+                          </div>
+
+                          <div class="o_setting_left_pane"/>
+                          <div class="o_setting_right_pane">
+                                <label for="industrializacao" />
+                                <field name="industrializacao" />
+
+                            </div>
+
+                         <div class="o_setting_left_pane"/>
+                         <div class="o_setting_right_pane">
+                            <label for="servico" />
+                            <field name="servico" />
+
+                        </div>
+                    </div>
+
+<!--                            <div class="content-group mt16">-->
+<!--                               <field name="impostos" widget="section_and_note_one2many" mode="tree,kanban">-->
+<!--                                    <tree string="Impostos" editable="bottom">-->
+<!--                                        <field name="name"/>-->
+<!--                                        <field name="icms"/>-->
+<!--                                        <field name="ipi"/>-->
+<!--                                        <field name="pis"/>-->
+<!--                                        <field name="cofins"/>-->
+<!--                                        <field name="ir"/>-->
+<!--                                        <field name="csl"/>-->
+<!--                                        <field name="iss"/>-->
+<!--                                        <field name="cpp"/>-->
+<!--                                        <field name="total_imp" readonly="1"/>-->
+<!--                                    </tree>-->
+<!--                                </field>-->
+<!--                            </div>-->
+
+
+            </xpath>
+        </field>
+    </record>
+</odoo>

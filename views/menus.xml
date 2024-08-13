@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 Madureira
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+
+<odoo>
+
+    <record model="ir.actions.act_window" id="orca_tabela_act_window">
+        <field name="name">Orcamento</field>
+        <field name="res_model">orca.tabela</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+<!--        <field name="context">{'default_linha':[(4,active_id)]}</field>-->
+    </record>
+
+<!--    <record model="ir.actions.act_window" id="orca_geral_act_window">-->
+<!--        <field name="name">Orcamento</field>-->
+<!--        <field name="res_model">orca.horas.prev</field>-->
+<!--        <field name="view_mode">tree,form</field>-->
+<!--    </record>-->
+
+
+<!--     <menuitem id="menu_orca_geral"-->
+<!--            name="Orçamentos"-->
+<!--            action="orca_geral_act_window"-->
+<!--            parent="sale.product_menu_catalog"-->
+<!--            sequence="1"/>-->
+
+</odoo>

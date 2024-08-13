@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2022 Madureira
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+
+<odoo>
+
+    <record id="orcamento" model="ir.module.category">
+        <field name="name">Orçamento</field>
+        <field name="description">Nivel de Acesso Orçamento</field>
+        <field name="sequence">21</field>
+    </record>
+
+     <record id="orca_user" model="res.groups">
+        <field name="name">Usuário</field>
+        <field name="category_id" ref="orcamento"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+
+     </record>
+
+    <record id="orca_admin" model="res.groups">
+        <field name="name">Administrador</field>
+        <field name="category_id" ref="orcamento"/>
+        <field name="implied_ids" eval="[(4, ref('orca_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

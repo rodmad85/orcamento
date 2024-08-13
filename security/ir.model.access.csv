@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_orca_user,orcamento.user,model_orca_tabela,orca_user,1,1,1,0
+access_orca_admin,orcamento.admin,model_orca_tabela,orca_admin,1,1,1,1
+access_orca_impostos,orca.impostos,model_orca_impostos,orca_admin,1,1,1,1
+access_orca_horas_total_user,orca.horas.total.user,model_orca_horas_total,orca_user,1,1,1,0
+access_orca_horas_total_admin,orca.horas.total.admin,model_orca_horas_total,orca_admin,1,1,1,1

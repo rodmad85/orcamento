@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+
+
+    <record id="orca_tabela_form" model="ir.ui.view">
+       <field name="name">orcamento.tabela.form</field>
+       <field name="model">orca.tabela</field>
+       <field name="arch" type="xml">
+          <form>
+           <div class="oe_title">
+                <h1>
+                    Tabela de Orçamento
+                </h1>
+           </div>
+            <div>
+                <h2><field name="produto"/></h2>
+<!--                <field name="pedido" readonly="1"/> - -->
+<!--                <field name="fiscal"/>-->
+            </div>
+           <group>
+
+                <group string="Custos">
+
+                    <group>
+                    <field name="currency_id" invisible="1" colspan="4"/>
+                    <field name="mp" colspan="4" widget="float"/>
+                    <field name="mo" colspan="4"/>
+                    <field name="mo_valor" colspan="4"/>
+                    <field name="mo_total" readonly="1" colspan="4"/>
+                    <field name="terc" colspan="4"/>
+                    <field name="total" readonly="1" colspan="4"/>
+                    <field name="lucro" colspan="4"/>
+                    </group>
+                </group>
+
+                 <group string="Venda" >
+                   <h4><strong><field name="valor_venda" readonly="1"/></strong></h4>
+                     <group>
+
+                    <field name="imposto_venda" readonly="1"/>
+                    <field name="impv_valor" readonly="1" colspan="2"/>
+                    <field name="cvenda" readonly="1"/>
+                    <field name="resulv" readonly="1"/>
+
+                     </group>
+               </group>
+               <group string="Industrialização">
+                   <h4><strong><field name="valor_ind" readonly="1"/></strong></h4>
+                   <group>
+                           <field name="imposto_ind" readonly="1"/>
+                           <field name="impi_valor" readonly="1"/>
+                           <field name="cind" readonly="1"/>
+                            <field name="resuli" readonly="1"/>
+                       </group>
+
+               </group>
+               <group string="Serviço">
+                   <h4><strong><field name="valor_serv" readonly="1"/></strong></h4>
+                   <group>
+                       <field name="imposto_serv" readonly="1"/>
+                       <field name="imps_valor" readonly="1"/>
+                       <field name="cserv" readonly="1"/>
+                       <field name="resuls" readonly="1"/>
+                       <field name="linha" invisible="1"/>
+
+                    </group>
+                </group>
+
+           </group>
+            <footer>
+                <button string="Salvar" class="btn-primary" type="object" name="salva_orca"/>
+                <button string="Salvar e Selecionar Preço" class="btn-primary" type="object" name="salva_select"/>
+                <button string="Cancelar" special="cancel" class="btn-default"/>
+            </footer>
+        </form>
+       </field>
+    </record>
+
+</odoo>
