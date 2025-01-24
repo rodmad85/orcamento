@@ -1,3 +1,5 @@
+import time
+from datetime import datetime
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 
@@ -142,13 +144,47 @@ class OrcaTabela(models.TransientModel):
 
     def default_get(self, fields):
 
+        pedido = self.env.context.get('active_id')
+        mes = datetime.now().month - 2
+        ano = datetime.now().year
+        dt_str = str(ano)+ '-' + str(mes).zfill(2) + '-' + '01'
+        city_comp = self.env.company.city_id
+        order = self.env['sale.order.line'].browse(pedido).order_id
+        partner = order.partner_id
+        if partner.is_company == True:
+            if partner.city_id:
+                city_part = partner.city_id
+            else:
+                raise ValidationError("Defina a cidade do contato.")
+
+        elif partner.parent_id:
+            if partner.parent_id.city_id:
+                city_part = partner.parent_id.city_id
+            else:
+                raise ValidationError("Defina a cidade do contato.")
+
+
+
+
+        if city_part == city_comp:
+            ret = True
+        else:
+            ret = False
+
         res = super(OrcaTabela, self).default_get(fields)
         value = self.env['ir.config_parameter'].sudo().get_param('orcamento.custo_fixo')
-        vvenda = self.env['ir.config_parameter'].sudo().get_param('orcamento.venda')
+
+        vvenda = self.env['os.impostos.line'].search([('fiscal_position.name','=','Venda'),('mes','=',dt_str)]).percentual
         vhora = self.env['ir.config_parameter'].sudo().get_param('orcamento.vhora')
-        vservico = self.env['ir.config_parameter'].sudo().get_param('orcamento.servico')
-        vindus = self.env['ir.config_parameter'].sudo().get_param('orcamento.industrializacao')
-        pedido = self.env.context.get('active_id')
+
+        if ret:
+            vservico = self.env['os.impostos.line'].search([('fiscal_position.name', '=', 'Serviço c retenção'), ('mes', '=', dt_str)]).percentual
+        else:
+            vservico = self.env['os.impostos.line'].search([('fiscal_position.name', '=', 'Serviço'), ('mes', '=', dt_str)]).percentual
+
+        vindus = self.env['os.impostos.line'].search([('fiscal_position.name','=','Industrialização'),('mes','=',dt_str)]).percentual
+
+
         horas = self.env['sale.order.line'].browse(pedido).mo
         horast = self.env['sale.order.line'].browse(pedido).mo_total
         matp = self.env['sale.order.line'].browse(pedido).mp
@@ -159,6 +195,7 @@ class OrcaTabela(models.TransientModel):
         if horas or matp or terc:
             res.update({
                 'mp': matp,
+                'mo': horas,
                 'terc': terc,
                 'lucro': lucro,
                 'mo_total': horast,
@@ -284,9 +321,18 @@ class OrcaTabela(models.TransientModel):
         ci = (self.valor_ind * (self.custos / 100))
         cs = (self.valor_serv * (self.custos / 100))
 
-        impv = self.valor_venda / self.imposto_venda
-        imps = self.valor_serv / self.imposto_serv
-        impi = self.valor_ind / self.imposto_ind
+        if self.valor_venda and self.imposto_venda:
+            impv = self.valor_venda / self.imposto_venda
+        else:
+            impv = 0
+        if self.valor_serv and self.imposto_serv:
+            imps = self.valor_serv / self.imposto_serv
+        else:
+            imps = 0
+        if self.valor_ind and self.imposto_ind:
+            impi = self.valor_ind / self.imposto_ind
+        else:
+            impi = 0
 
         self.write({'cvenda': cv, 'cind': ci, 'cserv': cs})
         self.write({'impv_valor': impv, 'impi_valor': impi, 'imps_valor': imps})
