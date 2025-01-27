@@ -178,7 +178,7 @@ class OrcaTabela(models.TransientModel):
                 'imposto_serv': vservico,
                 'imposto_ind': vindus,
                 'linha': pedido,
-                'readonly': self.readonly
+                'readonly': self.readonly,
 
             })
         else:
