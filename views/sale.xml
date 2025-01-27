@@ -25,7 +25,7 @@
             <field name="model">sale.order</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="before">
-                    <button name="%(orca_tabela_act_window)d" type="action" class="oe_stat_button"  icon="fa-calculator" attrs="{'invisible': [('parent.state', 'in', ['sale', 'done'])]}"/>
+                    <button name="%(orca_tabela_act_window)d" type="action" class="oe_stat_button"  icon="fa-calculator"/>
                 </xpath>
                 <xpath expr="//form/sheet/notebook/page[1]" position="after">
                     <page string="Orçamento">
