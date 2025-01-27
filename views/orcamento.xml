@@ -24,14 +24,15 @@
                 <group string="Custos">
 
                     <group>
-                    <field name="currency_id" invisible="1" colspan="4"/>
-                    <field name="mp" colspan="4" widget="float"/>
-                    <field name="mo" colspan="4"/>
-                    <field name="mo_valor" colspan="4"/>
-                    <field name="mo_total" readonly="1" colspan="4"/>
-                    <field name="terc" colspan="4"/>
-                    <field name="total" readonly="1" colspan="4"/>
-                    <field name="lucro" colspan="4"/>
+                        <field name="readonly" invisible="1"/>
+                        <field name="currency_id" invisible="1" colspan="4"/>
+                        <field name="mp" colspan="4" widget="float" attrs="{'readonly': [('readonly', '=', True)]}"/>
+                        <field name="mo" colspan="4" attrs="{'readonly': [('readonly', '=', True)]}"/>
+                        <field name="mo_valor" colspan="4" attrs="{'readonly': [('readonly', '=', True)]}"/>
+                        <field name="mo_total" readonly="1" colspan="4"/>
+                        <field name="terc" colspan="4" attrs="{'readonly': [('readonly', '=', True)]}"/>
+                        <field name="total" readonly="1" colspan="4"/>
+                        <field name="lucro" colspan="4" attrs="{'readonly': [('readonly', '=', True)]}"/>
                     </group>
                 </group>
 
@@ -70,8 +71,8 @@
 
            </group>
             <footer>
-                <button string="Salvar" class="btn-primary" type="object" name="salva_orca"/>
-                <button string="Salvar e Selecionar Preço" class="btn-primary" type="object" name="salva_select"/>
+                <button string="Salvar" class="btn-primary" type="object" name="salva_orca" attrs="{'invisible': [('readonly', '=', True)]}"/>
+                <button string="Salvar e Selecionar Preço" class="btn-primary" type="object" name="salva_select" attrs="{'invisible': [('readonly', '=', True)]}"/>
                 <button string="Cancelar" special="cancel" class="btn-default"/>
             </footer>
         </form>
