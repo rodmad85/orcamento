@@ -168,6 +168,7 @@ class OrcaTabela(models.TransientModel):
         if horas or matp or terc:
             res.update({
                 'mp': matp,
+                'mo': horas,
                 'terc': terc,
                 'lucro': lucro,
                 'mo_total': horast,
@@ -183,6 +184,7 @@ class OrcaTabela(models.TransientModel):
         else:
 
                 res.update({
+                    'mo': 1,
                     'custos': value,
                     'mo_valor': vhora,
                     'imposto_venda': vvenda,
