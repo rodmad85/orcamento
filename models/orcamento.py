@@ -40,10 +40,9 @@ class OrcaSale(models.Model):
                 rec.horas_mo = rec.horas_mo
 
             if matp:
-                rec.materia_prima = total
+                rec.materia_prima = matp
             else:
-                mp = rec.materia_prima  # self.env['sale.order'].browse(self.env.context.get('active_ids')).materia_prima
-                rec.materia_prima = mp
+                rec.materia_prima = rec.materia_prima
 
             if total:
                 rec.valor_total_horas = total
