@@ -40,6 +40,8 @@ class OrcaSale(models.Model):
 
             if total:
                 rec.valor_total_horas = total
+            else:
+                rec.valor_total_horas = rec.valor_total_horas
 
 
     @api.onchange('valor_horas', 'horas_mo')
