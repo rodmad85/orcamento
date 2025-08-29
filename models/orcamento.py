@@ -31,23 +31,15 @@ class OrcaSale(models.Model):
 
             if terc:
                 rec.terceiros = terc
-            else:
-                rec.terceiros = rec.terceiros
 
             if mot:
                 rec.horas_mo = mot
-            else:
-                rec.horas_mo = rec.horas_mo
 
             if matp:
                 rec.materia_prima = matp
-            else:
-                rec.materia_prima = rec.materia_prima
 
             if total:
                 rec.valor_total_horas = total
-            else:
-                rec.valor_total_horas = rec.valor_total_horas
 
 
     @api.onchange('valor_horas', 'horas_mo')
