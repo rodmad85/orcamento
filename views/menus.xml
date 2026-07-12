@@ -9,20 +9,22 @@
         <field name="res_model">orca.tabela</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
-<!--        <field name="context">{'default_linha':[(4,active_id)]}</field>-->
     </record>
 
-<!--    <record model="ir.actions.act_window" id="orca_geral_act_window">-->
-<!--        <field name="name">Orcamento</field>-->
-<!--        <field name="res_model">orca.horas.prev</field>-->
-<!--        <field name="view_mode">tree,form</field>-->
-<!--    </record>-->
+    <menuitem id="orca_menu_root"
+        name="Orçamento"
+        sequence="31"/>
 
+    <menuitem id="orca_budget_menu"
+        name="Orçamentos"
+        parent="orca_menu_root"
+        action="orca_budget_act_window"
+        sequence="10"/>
 
-<!--     <menuitem id="menu_orca_geral"-->
-<!--            name="Orçamentos"-->
-<!--            action="orca_geral_act_window"-->
-<!--            parent="sale.product_menu_catalog"-->
-<!--            sequence="1"/>-->
+    <menuitem id="orca_purchase_list_menu"
+        name="Lista de Compras"
+        parent="orca_menu_root"
+        action="orca_purchase_list_act_window"
+        sequence="20"/>
 
 </odoo>

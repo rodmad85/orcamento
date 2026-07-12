@@ -23,50 +23,77 @@
             <field name="name">sale.order.orcamento.form</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="model">sale.order</field>
+            <field name="priority">20</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="before">
-                    <button name="%(orca_tabela_act_window)d" type="action" class="oe_stat_button"  icon="fa-calculator"/>
+                    <button name="%(orca_tabela_act_window)d" type="action" class="oe_stat_button"  icon="fa-calculator" title="Tabela de Orçamento"/>
                 </xpath>
-                <xpath expr="//form/sheet/notebook/page[1]" position="after">
+                <xpath expr="//form/sheet/notebook/page[@name='order_lines']" position="after">
                     <page string="Orçamento">
-                        <group>
-                        <group>
-                            <field name="horas_mo" attrs="{'required': [('state', '=', 'sale')]}"/>
-                            <field name="valor_horas" widget="monetary"
-                                   attrs="{'required': [('state', '=', 'sale')]}"/>
-                            <field name="valor_total_horas" widget="monetary" readonly="1"/>
-                            <field name="valor_total_hmanual"/>
-                            <field name="terceiros" widget="monetary"/>
-                            <field name="materia_prima"  widget="monetary" string="Valor Matéria Prima"/>
-                            <field name="resultado" invisible="0"/>
-                        </group>
-                            <group>
-                                 <field name="horas_total" string="Horas Previstas" widget="section_and_note_one2many" mode="tree,kanban" nolabel="1">
-                             <tree editable="bottom">
-                                 <field name="funcionario"/>
-                                 <field name="htotal"/>
-                                 <field name="dias" readonly="1"/>
-                             </tree>
-                            </field>
-                            </group>
-                        </group>
-                            <group>
+                        <button name="%(action_wizard_import_budget_to_sale)d" type="action"
+                                string="Importar Cotação" class="btn-secondary"
+                                context="{'active_id': active_id}"/>
+                        <div class="row">
+                            <div class="col-6">
+                                <group>
+                                    <field name="horas_mo" attrs="{'required': [('state', '=', 'sale')]}"/>
+                                    <field name="valor_horas" widget="monetary"
+                                           attrs="{'required': [('state', '=', 'sale')]}"/>
+                                    <field name="valor_total_horas" widget="monetary" readonly="1"/>
+                                    <field name="valor_total_hmanual"/>
+                                    <field name="terceiros" widget="monetary"/>
+                                    <field name="materia_prima"  widget="monetary" string="Valor Matéria Prima"/>
+                                    <field name="resultado" invisible="0"/>
+                                </group>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <field name="horas_total" string="Horas Previstas" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="funcionario"/>
+                                        <field name="processo"/>
+                                        <field name="htotal"/>
+                                        <field name="dias" readonly="1"/>
+                                        <field name="linha"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
                                  <field name="order_line_orca" widget="section_and_note_one2many" mode="tree,kanban" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}" nolabel="1">
-                                         <tree>
-                                             <field name="product_id"/>
-                                             <field name="mp" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="mo_valor" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="mo"/>
-                                             <field name="mo_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="terc" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="lucro"/>
-                                             <field name="valor_serv" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="valor_ind" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="valor_venda" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                             <field name="currency_id" invisible="1"/>
+                                        <tree>
+                                            <field name="product_id"/>
+                                            <field name="mp" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="mo_valor" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="mo"/>
+                                            <field name="mo_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="terc" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="lucro"/>
+                                            <field name="custos"/>
+                                            <field name="valor_venda" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="valor_serv" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="valor_ind" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="valor_custo" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="cvenda" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="cind" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="cserv" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="imposto_venda"/>
+                                            <field name="impv_valor" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="imposto_ind"/>
+                                            <field name="impi_valor" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="imposto_serv"/>
+                                            <field name="imps_valor" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="resulv" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="resuli" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="resuls" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="currency_id" invisible="1"/>
                                          </tree>
-                                 </field>
-                            </group>
+                                  </field>
+                             </div>
+                        </div>
 
                     </page>
                 </xpath>

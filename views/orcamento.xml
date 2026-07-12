@@ -2,8 +2,6 @@
 
 <odoo>
 
-
-
     <record id="orca_tabela_form" model="ir.ui.view">
        <field name="name">orcamento.tabela.form</field>
        <field name="model">orca.tabela</field>
@@ -16,8 +14,6 @@
            </div>
             <div>
                 <h2><field name="produto"/></h2>
-<!--                <field name="pedido" readonly="1"/> - -->
-<!--                <field name="fiscal"/>-->
             </div>
            <group>
 
@@ -77,6 +73,138 @@
             </footer>
         </form>
        </field>
+    </record>
+
+    <record id="orca_material_line_tree" model="ir.ui.view">
+        <field name="name">orca.material.line.tree</field>
+        <field name="model">orca.material.line</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="product_id"/>
+                <button name="action_open_bom_list" type="object" icon="fa-list"/>
+                <field name="product_uom_id" options="{'no_create': True}"/>
+                <field name="quantity"/>
+                <field name="custo_mp_total" widget="monetary" string="Custo MP"/>
+                <field name="custo_comercial_total" widget="monetary" string="Custo Comercial"/>
+                <field name="custo_mp_comercial_total" widget="monetary" string="Custo MP + Comercial"/>
+                <field name="custo_horas" widget="monetary"/>
+                <field name="total_horas"/>
+                <field name="custo_terceiros" widget="monetary"/>
+                <field name="custo_total" widget="monetary" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="orca_budget_tree" model="ir.ui.view">
+        <field name="name">orca.budget.tree</field>
+        <field name="model">orca.budget</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="meio"/>
+                <field name="client_number"/>
+                <field name="date_order"/>
+                <field name="total_materiais" widget="monetary" optional="show"/>
+                <field name="custo_horas_total" widget="monetary" optional="show"/>
+                <field name="total_horas" optional="show"/>
+                <field name="total_geral" widget="monetary" optional="show"/>
+                <field name="lista_compras_importada"/>
+                <field name="importado_vendas"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="orca_budget_form" model="ir.ui.view">
+        <field name="name">orca.budget.form</field>
+        <field name="model">orca.budget</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_open_purchase_list" type="object"
+                            string="Lista de Compras" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" context="{'show_address': 1}"/>
+                            <field name="meio"/>
+                            <field name="client_number"/>
+                            <field name="date_order"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="lista_compras_importada"/>
+                            <field name="importado_vendas"/>
+                            <field name="total_materiais" widget="monetary" string="Custo Materiais"/>
+                            <field name="custo_horas_total" widget="monetary" string="Custo Horas"/>
+                            <field name="total_horas" string="Total Horas"/>
+                            <field name="total_terceiros" widget="monetary" string="Custo Terceiros"/>
+                            <field name="total_geral" widget="monetary" string="Custo Total"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Produtos">
+                            <field name="material_line_ids" nolabel="1">
+                                <tree editable="bottom" multi_edit="1">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id"/>
+                                    <button name="action_open_bom_list" type="object" icon="fa-list"/>
+                                    <field name="product_uom_id" options="{'no_create': True}"/>
+                                    <field name="quantity"/>
+                                    <field name="custo_mp_total" widget="monetary" string="Custo MP"/>
+                                    <field name="custo_comercial_total" widget="monetary" string="Custo Comercial"/>
+                                    <field name="custo_mp_comercial_total" widget="monetary" string="Custo MP + Comercial"/>
+                                    <field name="custo_horas" widget="monetary"/>
+                                    <field name="total_horas"/>
+                                    <field name="custo_terceiros" widget="monetary"/>
+                                    <field name="custo_total" widget="monetary" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="orca_budget_search" model="ir.ui.view">
+        <field name="name">orca.budget.search</field>
+        <field name="model">orca.budget</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="Importado Vendas" name="importado_vendas"
+                        domain="[('importado_vendas', '=', True)]"/>
+                <separator/>
+                <filter string="Lista Compras" name="lista_compras"
+                        domain="[('lista_compras_importada', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Meio" name="group_meio" context="{'group_by': 'meio'}"/>
+                    <filter string="Data" name="group_date" context="{'group_by': 'date_order'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="orca_budget_act_window" model="ir.actions.act_window">
+        <field name="name">Orçamentos</field>
+        <field name="res_model">orca.budget</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="orca_budget_search"/>
     </record>
 
 </odoo>

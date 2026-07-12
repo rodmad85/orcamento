@@ -22,6 +22,7 @@ class OrcaSale(models.Model):
         for order in self:
             order.order_line_orca = order.order_line.filtered(lambda line: line.product_id)
 
+    @api.depends('order_line_orca', 'order_line_orca.mo_total', 'order_line_orca.mp', 'order_line_orca.mo', 'order_line_orca.terc')
     def _vtotal_horas(self):
         for rec in self:
             total = sum(rec.order_line_orca.mapped('mo_total'))
