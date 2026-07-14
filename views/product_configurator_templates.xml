@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="bom_line_configurator" name="BOM Line Product Configurator">
+        <t t-set="combination" t-value="combination or product._get_first_possible_combination()"/>
+        <t t-set="pricelist" t-value="False"/>
+        <div class="js_product main_product o_product_configurator">
+            <input type="hidden" class="product_template_id" t-att-value="product.id"/>
+            <input type="hidden" class="product_id"
+                   t-att-value="product._get_variant_for_combination(combination).id or 0"/>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <h4 class="product-name" t-esc="product.name"/>
+                    <t t-call="sale.variants"/>
+                    <p class="css_not_available_msg alert alert-warning"
+                       style="display: none;">
+                        Esta combinação não existe.
+                    </p>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img t-att-src="'/web/image/product.template/%s/image_256' % product.id"
+                         class="img-fluid product_detail_img" alt="Product Image"/>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="orca_purchase_list_tree" model="ir.ui.view">
+        <field name="name">orca.purchase.list.tree</field>
+        <field name="model">orca.purchase.list</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="date_order"/>
+                <field name="bom_id"/>
+                <field name="state"/>
+                <button name="action_open_lines" type="object"
+                        string="Ver Itens" class="btn-primary"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="orca_purchase_list_form" model="ir.ui.view">
+        <field name="name">orca.purchase.list.form</field>
+        <field name="model">orca.purchase.list</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                    <button name="action_generate_lines" type="object"
+                            string="Regenerar Itens" class="btn-secondary"
+                            states="draft"/>
+                    <button name="action_open_lines" type="object"
+                            string="Ver Itens" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_order"/>
+                            <field name="bom_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="orca_purchase_list_search" model="ir.ui.view">
+        <field name="name">orca.purchase.list.search</field>
+        <field name="model">orca.purchase.list</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="bom_id"/>
+                <separator/>
+                <filter name="draft" string="Rascunho" domain="[('state','=','draft')]"/>
+                <filter name="done" string="Finalizado" domain="[('state','=','done')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="orca_purchase_list_act_window" model="ir.actions.act_window">
+        <field name="name">Lista de Compras</field>
+        <field name="res_model">orca.purchase.list</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>Lista geral de itens para compra gerada a partir das listas de materiais de orçamento.</p>
+        </field>
+    </record>
+
+    <record id="orca_purchase_list_line_tree" model="ir.ui.view">
+        <field name="name">orca.purchase.list.line.tree</field>
+        <field name="model">orca.purchase.list.line</field>
+        <field name="arch" type="xml">
+            <tree multi_edit="1" default_order="partner_id, product_id">
+                <header>
+                    <button name="action_regenerate_from_lines" type="object"
+                            string="Regenerar Itens" class="btn-secondary"/>
+                    <button name="action_open_create_wizard" type="object"
+                            string="Criar Pedido de Compra"
+                            class="btn-primary"/>
+                </header>
+                <field name="product_id"/>
+                <field name="product_uom_id"/>
+                <field name="product_qty" sum="Total"/>
+                <field name="partner_id"/>
+                <field name="state"/>
+                <field name="purchase_list_id" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="orca_purchase_list_line_search" model="ir.ui.view">
+        <field name="name">orca.purchase.list.line.search</field>
+        <field name="model">orca.purchase.list.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="partner_id"/>
+                <field name="purchase_list_id"/>
+                <filter name="pendente" string="Pendente" domain="[('state','=','pendente')]"/>
+                <filter name="comprado" string="Comprado" domain="[('state','=','comprado')]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_partner" string="Fornecedor"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_list" string="Lista de Compras"
+                            context="{'group_by': 'purchase_list_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_orca_bom_line_configurator" model="ir.actions.act_window">
+        <field name="name">Configurar Produto</field>
+        <field name="res_model">orca.bom.line.configurator</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="orca_bom_line_configurator_form_view" model="ir.ui.view">
+        <field name="name">orca.bom.line.configurator.form</field>
+        <field name="model">orca.bom.line.configurator</field>
+        <field name="arch" type="xml">
+            <form string="Configurar Produto">
+                <group>
+                    <field name="product_tmpl_id" readonly="1"/>
+                    <field name="product_template_attribute_value_ids"
+                           widget="many2many"
+                           options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Confirmar"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="mrp_bom_form_view_orcamento" model="ir.ui.view">
+        <field name="name">mrp.bom.form.orcamento</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='bom_line_ids']/tree//field[@name='product_id']" position="attributes">
+                <attribute name="context">{'orcamento_template_search': parent.type == 'orcamento'}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='bom_line_ids']/tree//field[@name='product_id']" position="after">
+                <button name="action_open_bom_line_configurator" type="object" icon="fa-cog"
+                        string="Configurar"
+                        attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='bom_line_ids']/tree//field[@name='operation_id']" position="after">
+                <field name="medidas"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+                <field name="qty_available"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+                <field name="ultima_compra"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+                <field name="ultimo_fornecedor_id"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+                <field name="ultimo_preco_compra"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+                <field name="utilizar_estoque"
+                       attrs="{'column_invisible': [('parent.type', '!=', 'orcamento')]}"/>
+            </xpath>
+
+            <xpath expr="//form" position="inside">
+                <div class="oe_button_box" name="button_box"
+                     attrs="{'invisible': [('type', '!=', 'orcamento')]}">
+                    <button name="action_open_purchase_list"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            string="Lista de Compras"/>
+                </div>
+            </xpath>
+
+            <xpath expr="//page[@name='operations']" position="attributes">
+                <attribute name="groups"></attribute>
+                <attribute name="attrs">{'invisible': [('type', 'not in', ('normal', 'phantom', 'orcamento'))]}</attribute>
+            </xpath>
+            <xpath expr="//page[@name='operations']/field[@name='operation_ids']" position="attributes">
+                <attribute name="groups"></attribute>
+                <attribute name="attrs">{'invisible': [('type', 'not in', ('normal', 'phantom', 'orcamento'))]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="orcamento_mrp_routing_workcenter_bom_tree_view" model="ir.ui.view">
+        <field name="name">mrp.routing.workcenter.bom.tree.orcamento</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_bom_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="editable">top</attribute>
+            </xpath>
+            <xpath expr="//field[@name='time_mode']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='time_cycle']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='time_cycle']" position="after">
+                <field name="time_cycle_hours"/>
+                <field name="custo_hora" string="Custo por Hora" optional="show"/>
+                <field name="valor_total" string="Valor Total" sum="Total" optional="show"/>
+                <field name="workcenter_terceiro"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_workcenter_form_view_orcamento" model="ir.ui.view">
+        <field name="name">mrp.workcenter.form.orcamento</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="is_terceiro"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
