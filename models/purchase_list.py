@@ -129,13 +129,16 @@ class OrcaPurchaseListLine(models.Model):
         pendente = self.filtered(lambda l: l.state == 'pendente')
         if not pendente:
             raise UserError(_("Nenhum item pendente. Selecione itens com situação 'Pendente'."))
+        wizard = self.env['orca.create.purchase.order.wizard'].with_context(
+            active_ids=pendente.ids,
+        ).create({})
         return {
             'type': 'ir.actions.act_window',
             'name': 'Criar Pedido de Compra',
             'res_model': 'orca.create.purchase.order.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
             'target': 'new',
-            'context': {'active_ids': pendente.ids},
         }
 
 

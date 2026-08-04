@@ -2,6 +2,26 @@ from odoo import fields, models, api
 from odoo.exceptions import UserError
 
 
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    def action_import_budget(self):
+        self.ensure_one()
+        budgets = self.env['orca.budget'].search([('importado_vendas', '=', False)])
+        wizard = self.env['wizard.import.budget.to.sale'].create({
+            'sale_order_id': self.id,
+            'line_ids': [(0, 0, {'budget_id': b.id}) for b in budgets],
+        })
+        return {
+            'name': 'Importar Orçamento',
+            'type': 'ir.actions.act_window',
+            'res_model': 'wizard.import.budget.to.sale',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
+
 class ImportBudgetToSaleLine(models.TransientModel):
     _name = 'wizard.import.budget.to.sale.line'
     _description = 'Linha do Assistente de Importar Orçamento'

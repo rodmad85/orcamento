@@ -30,9 +30,8 @@
                 </xpath>
                 <xpath expr="//form/sheet/notebook/page[@name='order_lines']" position="after">
                     <page string="Orçamento">
-                        <button name="%(action_wizard_import_budget_to_sale)d" type="action"
-                                string="Importar Cotação" class="btn-secondary"
-                                context="{'active_id': active_id}"/>
+                        <button name="action_import_budget" type="object"
+                                string="Importar Cotação" class="btn-secondary"/>
                         <div class="row">
                             <div class="col-6">
                                 <group>
