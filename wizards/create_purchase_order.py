@@ -200,3 +200,4 @@ class OrcaCreatePurchaseOrderWizardPartner(models.TransientModel):
         self.ensure_one()
         self.wizard_id.partner_ids.write({'selected': False})
         self.selected = True
+        return True
