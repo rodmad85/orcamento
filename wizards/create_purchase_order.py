@@ -53,19 +53,37 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
             return res
 
         suppliers = {}
+        no_supplier_line_ids = []
+
         for line in lines:
+            found_supplier = False
+
+            if line.partner_id:
+                p_id = line.partner_id.id
+                if p_id not in suppliers:
+                    suppliers[p_id] = {'partner_id': p_id, 'line_ids': []}
+                if line.id not in suppliers[p_id]['line_ids']:
+                    suppliers[p_id]['line_ids'].append(line.id)
+                found_supplier = True
+
             template = line.product_id.product_tmpl_id
             for seller in template.seller_ids:
                 partner = seller.partner_id
                 if not partner:
                     continue
                 if partner.id not in suppliers:
-                    suppliers[partner.id] = {
-                        'partner_id': partner.id,
-                        'line_ids': [],
-                    }
+                    suppliers[partner.id] = {'partner_id': partner.id, 'line_ids': []}
                 if line.id not in suppliers[partner.id]['line_ids']:
                     suppliers[partner.id]['line_ids'].append(line.id)
+                found_supplier = True
+
+            if not found_supplier:
+                no_supplier_line_ids.append(line.id)
+
+        for p_id in suppliers:
+            for line_id in no_supplier_line_ids:
+                if line_id not in suppliers[p_id]['line_ids']:
+                    suppliers[p_id]['line_ids'].append(line_id)
 
         partner_vals = []
         for p_id, p_data in suppliers.items():
@@ -101,60 +119,11 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
         all_pending = self.partner_ids.mapped('purchase_list_line_ids').filtered(
             lambda l: l.state == 'pendente')
 
-        if not self.partner_id:
-            if not all_pending:
-                raise UserError(_("Nenhum item pendente para criar o pedido."))
-
-            order_line_vals = []
-            for line in all_pending:
-                last_purchase = self.env['purchase.order.line'].search([
-                    ('product_id', '=', line.product_id.id),
-                    ('state', '=', 'purchase'),
-                ], order='date_order desc, id desc', limit=1)
-                price = last_purchase.price_unit if last_purchase else 0.0
-                order_line_vals.append((0, 0, {
-                    'product_id': line.product_id.id,
-                    'product_uom': line.product_uom_id.id or line.product_id.uom_id.id,
-                    'product_qty': line.product_qty,
-                    'name': line.product_id.display_name,
-                    'price_unit': price,
-                }))
-            order = self.env['purchase.order'].create({
-                'company_id': self.purchase_list_id.company_id.id,
-                'order_line': order_line_vals,
-            })
-            for po_line in order.order_line:
-                match = all_pending.filtered(lambda l: l.product_id.id == po_line.product_id.id)
-                if match:
-                    match[:1].write({
-                        'state': 'pedido_criado',
-                        'purchase_order_line_id': po_line.id,
-                    })
-
-            purchase_list = self.purchase_list_id
-            all_comprado = all(
-                line.state == 'comprado' for line in purchase_list.line_ids
-            )
-            if all_comprado and purchase_list.budget_id:
-                purchase_list.budget_id.lista_compras_importada = True
-
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'Pedido de Compra',
-                'res_model': 'purchase.order',
-                'view_mode': 'form',
-                'res_id': order.id,
-                'target': 'current',
-            }
-
-        selected = self.partner_ids.filtered(lambda p: p.partner_id == self.partner_id)
-        pl_lines = selected[:1].purchase_list_line_ids.filtered(
-            lambda l: l.state == 'pendente') if selected else self.env['orca.purchase.list.line']
-        if not pl_lines:
-            raise UserError(_("Nenhum item pendente para este fornecedor."))
+        if not all_pending:
+            raise UserError(_("Nenhum item pendente para criar o pedido."))
 
         order_line_vals = []
-        for line in pl_lines:
+        for line in all_pending:
             last_purchase = self.env['purchase.order.line'].search([
                 ('product_id', '=', line.product_id.id),
                 ('state', '=', 'purchase'),
@@ -167,17 +136,19 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
                 'name': line.product_id.display_name,
                 'price_unit': price,
             }))
+
         order = self.env['purchase.order'].create({
-            'partner_id': self.partner_id.id,
+            'partner_id': self.partner_id.id if self.partner_id else False,
             'company_id': self.purchase_list_id.company_id.id,
             'order_line': order_line_vals,
         })
+
         for po_line in order.order_line:
-            match = pl_lines.filtered(lambda l: l.product_id.id == po_line.product_id.id)
+            match = all_pending.filtered(lambda l: l.product_id.id == po_line.product_id.id)
             if match:
                 match[:1].write({
                     'state': 'pedido_criado',
-                    'partner_id': self.partner_id.id,
+                    'partner_id': self.partner_id.id if self.partner_id else False,
                     'purchase_order_line_id': po_line.id,
                 })
 
@@ -190,10 +161,10 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
 
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Pedidos de Compra',
+            'name': 'Pedido de Compra',
             'res_model': 'purchase.order',
-            'view_mode': 'tree,form',
-            'domain': [('id', '=', order.id)],
+            'view_mode': 'form',
+            'res_id': order.id,
             'target': 'current',
         }
 

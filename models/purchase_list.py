@@ -150,6 +150,11 @@ class PurchaseOrder(models.Model):
         self._update_purchase_list_lines()
         return res
 
+    def button_cancel(self):
+        res = super().button_cancel()
+        self._reset_purchase_list_lines()
+        return res
+
     def _update_purchase_list_lines(self):
         for order in self:
             for line in order.order_line:
@@ -158,3 +163,16 @@ class PurchaseOrder(models.Model):
                 ])
                 if purchase_list_lines:
                     purchase_list_lines.write({'state': 'comprado'})
+
+    def _reset_purchase_list_lines(self):
+        for order in self:
+            for line in order.order_line:
+                purchase_list_lines = self.env['orca.purchase.list.line'].search([
+                    ('purchase_order_line_id', '=', line.id),
+                ])
+                if purchase_list_lines:
+                    purchase_list_lines.write({
+                        'state': 'pendente',
+                        'purchase_order_line_id': False,
+                        'partner_id': False,
+                    })
