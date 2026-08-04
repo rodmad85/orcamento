@@ -5,30 +5,24 @@
         <field name="model">orca.create.purchase.order.wizard</field>
         <field name="arch" type="xml">
             <form string="Criar Pedido de Compra">
-                <div width="100%">
-                    <group string="Última Compra">
-                        <field name="ultimo_fornecedor" string="Fornecedor"/>
+                <group string="Última Compra">
+                    <field name="ultimo_fornecedor" string="Fornecedor"/>
+                    <field name="ultima_data_compra" string="Data"/>
+                    <field name="ultimo_preco_compra" string="Preço" widget="monetary"/>
+                </group>
+                <group string="Fornecedor Selecionado">
+                    <field name="partner_id" string="Fornecedor" options="{'no_create_edit': True}"/>
+                </group>
+                <field name="partner_ids" nolabel="1" string="Fornecedores Disponíveis">
+                    <tree create="0" delete="0">
+                        <button name="select_partner" type="object" icon="fa-arrow-right" class="btn-link"/>
+                        <field name="partner_id" string="Fornecedor"/>
+                        <field name="ultimo_fornecedor" string="Último Fornecedor"/>
                         <field name="ultima_data_compra" string="Data"/>
                         <field name="ultimo_preco_compra" string="Preço" widget="monetary"/>
-                    </group>
-                    <group string="Fornecedores Disponíveis">
-                        <div >
-                        <field name="partner_ids" nolabel="1">
-                            <tree create="0" delete="0" class="o_select_partner_tree">
-                                <button name="select_partner" type="object" icon="fa-arrow-right" class="btn-link"/>
-                                <field name="partner_id" string="Fornecedor"/>
-                                <field name="ultimo_fornecedor" string="Último Fornecedor"/>
-                                <field name="ultima_data_compra" string="Data"/>
-                                <field name="ultimo_preco_compra" string="Preço" widget="monetary"/>
-                                <field name="purchase_list_line_ids" invisible="1"/>
-                            </tree>
-                        </field>
-                        </div>
-                    </group>
-                    <group string="Fornecedor Selecionado">
-                        <field name="partner_id" string="Fornecedor" options="{'no_create_edit': True}"/>
-                    </group>
-                </div>
+                        <field name="purchase_list_line_ids" invisible="1"/>
+                    </tree>
+                </field>
                 <footer>
                     <button name="action_create_purchase_orders" type="object"
                             string="Criar Pedido(s) de Compra" class="btn-primary"/>

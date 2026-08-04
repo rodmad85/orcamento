@@ -8,25 +8,11 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
 
     purchase_list_id = fields.Many2one('orca.purchase.list', string='Lista de Compras')
     partner_ids = fields.One2many('orca.create.purchase.order.wizard.partner', 'wizard_id', string='Fornecedores')
-    partner_id = fields.Many2one('res.partner', compute='_compute_partner_id', inverse='_inverse_partner_id', string='Fornecedor')
+    partner_id = fields.Many2one('res.partner', string='Fornecedor')
     currency_id = fields.Many2one(related='purchase_list_id.company_id.currency_id')
     ultimo_fornecedor = fields.Char(string='Último Fornecedor', compute='_compute_ultima_compra')
     ultima_data_compra = fields.Datetime(string='Última Data de Compra', compute='_compute_ultima_compra')
     ultimo_preco_compra = fields.Monetary(string='Último Preço de Compra', compute='_compute_ultima_compra')
-
-    @api.depends('partner_ids.selected')
-    def _compute_partner_id(self):
-        for rec in self:
-            selected = rec.partner_ids.filtered('selected')
-            rec.partner_id = selected[:1].partner_id if selected else False
-
-    def _inverse_partner_id(self):
-        for rec in self:
-            if rec.partner_id:
-                rec.partner_ids.write({'selected': False})
-                match = rec.partner_ids.filtered(lambda p: p.partner_id == rec.partner_id)
-                if match:
-                    match[:1].selected = True
 
     @api.depends('partner_ids', 'partner_ids.purchase_list_line_ids')
     def _compute_ultima_compra(self):
@@ -93,27 +79,77 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
             'partner_ids': [(0, 0, vals) for vals in partner_vals],
         })
 
+        selected_partner_id = False
         product_ids = lines.mapped('product_id').ids
         last_line = self.env['purchase.order.line'].search([
             ('product_id', 'in', product_ids),
             ('state', '=', 'purchase'),
         ], order='date_order desc, id desc', limit=1)
         if last_line and last_line.order_id.partner_id.id in suppliers:
-            for vals in partner_vals:
-                if vals['partner_id'] == last_line.order_id.partner_id.id:
-                    vals['selected'] = True
-                    break
+            selected_partner_id = last_line.order_id.partner_id.id
+        elif len(suppliers) == 1:
+            selected_partner_id = list(suppliers.keys())[0]
+
+        if selected_partner_id:
+            res['partner_id'] = selected_partner_id
 
         return res
 
     def action_create_purchase_orders(self):
         self.ensure_one()
-        if not self.partner_id:
-            raise UserError(_("Selecione um fornecedor."))
 
-        partner = self.partner_id
-        selected = self.partner_ids.filtered('selected')
-        pl_lines = selected[:1].purchase_list_line_ids.filtered(lambda l: l.state == 'pendente') if selected else self.env['orca.purchase.list.line']
+        all_pending = self.partner_ids.mapped('purchase_list_line_ids').filtered(
+            lambda l: l.state == 'pendente')
+
+        if not self.partner_id:
+            if not all_pending:
+                raise UserError(_("Nenhum item pendente para criar o pedido."))
+
+            order_line_vals = []
+            for line in all_pending:
+                last_purchase = self.env['purchase.order.line'].search([
+                    ('product_id', '=', line.product_id.id),
+                    ('state', '=', 'purchase'),
+                ], order='date_order desc, id desc', limit=1)
+                price = last_purchase.price_unit if last_purchase else 0.0
+                order_line_vals.append((0, 0, {
+                    'product_id': line.product_id.id,
+                    'product_uom': line.product_uom_id.id or line.product_id.uom_id.id,
+                    'product_qty': line.product_qty,
+                    'name': line.product_id.display_name,
+                    'price_unit': price,
+                }))
+            order = self.env['purchase.order'].create({
+                'company_id': self.purchase_list_id.company_id.id,
+                'order_line': order_line_vals,
+            })
+            for po_line in order.order_line:
+                match = all_pending.filtered(lambda l: l.product_id.id == po_line.product_id.id)
+                if match:
+                    match[:1].write({
+                        'state': 'pedido_criado',
+                        'purchase_order_line_id': po_line.id,
+                    })
+
+            purchase_list = self.purchase_list_id
+            all_comprado = all(
+                line.state == 'comprado' for line in purchase_list.line_ids
+            )
+            if all_comprado and purchase_list.budget_id:
+                purchase_list.budget_id.lista_compras_importada = True
+
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Pedido de Compra',
+                'res_model': 'purchase.order',
+                'view_mode': 'form',
+                'res_id': order.id,
+                'target': 'current',
+            }
+
+        selected = self.partner_ids.filtered(lambda p: p.partner_id == self.partner_id)
+        pl_lines = selected[:1].purchase_list_line_ids.filtered(
+            lambda l: l.state == 'pendente') if selected else self.env['orca.purchase.list.line']
         if not pl_lines:
             raise UserError(_("Nenhum item pendente para este fornecedor."))
 
@@ -132,16 +168,18 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
                 'price_unit': price,
             }))
         order = self.env['purchase.order'].create({
-            'partner_id': partner.id,
+            'partner_id': self.partner_id.id,
             'company_id': self.purchase_list_id.company_id.id,
             'order_line': order_line_vals,
         })
         for po_line in order.order_line:
             match = pl_lines.filtered(lambda l: l.product_id.id == po_line.product_id.id)
             if match:
-                match[:1].write({'state': 'pedido_criado', 'partner_id': partner.id, 'purchase_order_line_id': po_line.id})
-        orders = order
-        orders = order
+                match[:1].write({
+                    'state': 'pedido_criado',
+                    'partner_id': self.partner_id.id,
+                    'purchase_order_line_id': po_line.id,
+                })
 
         purchase_list = self.purchase_list_id
         all_comprado = all(
@@ -155,7 +193,7 @@ class OrcaCreatePurchaseOrderWizard(models.TransientModel):
             'name': 'Pedidos de Compra',
             'res_model': 'purchase.order',
             'view_mode': 'tree,form',
-            'domain': [('id', 'in', orders.ids)],
+            'domain': [('id', '=', order.id)],
             'target': 'current',
         }
 
@@ -166,7 +204,6 @@ class OrcaCreatePurchaseOrderWizardPartner(models.TransientModel):
 
     wizard_id = fields.Many2one('orca.create.purchase.order.wizard', string='Wizard', ondelete='cascade', required=True)
     partner_id = fields.Many2one('res.partner', string='Fornecedor', required=True)
-    selected = fields.Boolean(string='Selecionado', default=False)
     purchase_list_line_ids = fields.Many2many('orca.purchase.list.line', relation='orca_wiz_partner_line_rel', string='Itens')
     ultimo_fornecedor = fields.Char(string='Último Fornecedor', compute='_compute_purchase_info')
     ultima_data_compra = fields.Datetime(string='Última Data de Compra', compute='_compute_purchase_info')
@@ -198,6 +235,4 @@ class OrcaCreatePurchaseOrderWizardPartner(models.TransientModel):
 
     def select_partner(self):
         self.ensure_one()
-        self.wizard_id.partner_ids.write({'selected': False})
-        self.selected = True
-        return True
+        self.wizard_id.partner_id = self.partner_id.id
